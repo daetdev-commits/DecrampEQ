@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.16)
+project(DecrampConsumer LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 11) # The exported library requirement must raise this to 17.
+if(DECRAMPEQ_SOURCE_DIR)
+    add_subdirectory("${DECRAMPEQ_SOURCE_DIR}" decramp)
+else()
+    find_package(DecrampEQ 0.2 CONFIG REQUIRED PATHS "${EXPECTED_PREFIX}" NO_DEFAULT_PATH)
+endif()
+add_executable(decramp_consumer main.cpp other.cpp)
+target_link_libraries(decramp_consumer PRIVATE DecrampEQ::DecrampEQ)
