@@ -72,3 +72,79 @@ jobs:
         run: cmake --build build --parallel 2
       - name: Test
         run: ctest --test-dir build --output-on-failure
+
+  release:
+    name: Publish release
+    needs: [build, sanitizers]
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'Release DecrampEQ ')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Package the tested source commit
+        env:
+          RELEASE_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path, PurePosixPath
+          import re
+          import subprocess
+          import zipfile
+
+          match = re.search(r'project\(DecrampEQ VERSION ([0-9]+\.[0-9]+\.[0-9]+)',
+                            Path('CMakeLists.txt').read_text(encoding='utf-8'))
+          if not match:
+              raise SystemExit('Cannot determine the project version')
+          version = match.group(1)
+          if os.environ['RELEASE_MESSAGE'].strip() != f'Release DecrampEQ {version}':
+              raise SystemExit('Release commit message must match the CMake version')
+          notes = Path('docs/releases') / f'{version}.md'
+          if not notes.is_file():
+              raise SystemExit('Missing release notes')
+
+          Path('dist').mkdir(exist_ok=True)
+          archive = Path('dist') / f'DecrampEQ-{version}-source.zip'
+          prefix = f'DecrampEQ-{version}/'
+          subprocess.run(['git', 'archive', '--format=zip', f'--prefix={prefix}',
+                          '-o', str(archive), os.environ['GITHUB_SHA']], check=True)
+          manifest = []
+          with zipfile.ZipFile(archive) as package:
+              for entry in package.infolist():
+                  if entry.is_dir():
+                      continue
+                  path = PurePosixPath(entry.filename)
+                  if (path.is_absolute() or '..' in path.parts or
+                          not entry.filename.startswith(prefix)):
+                      raise SystemExit('Unsafe archive member')
+                  relative = entry.filename[len(prefix):]
+                  digest = hashlib.sha256(package.read(entry)).hexdigest()
+                  manifest.append(f'{digest}  {relative}')
+          checksum = archive.with_suffix('.zip.sha256')
+          checksum.write_text(f'{hashlib.sha256(archive.read_bytes()).hexdigest()}  '
+                              f'{archive.name}\n', encoding='utf-8')
+          manifest_path = archive.with_suffix('.manifest.sha256')
+          manifest_path.write_text('\n'.join(sorted(manifest)) + '\n', encoding='utf-8')
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as environment:
+              environment.write(f'DECRAMP_VERSION={version}\n')
+              environment.write(f'DECRAMP_ARCHIVE={archive}\n')
+              environment.write(f'DECRAMP_CHECKSUM={checksum}\n')
+              environment.write(f'DECRAMP_MANIFEST={manifest_path}\n')
+              environment.write(f'DECRAMP_NOTES={notes}\n')
+          PY
+      - name: Create release and upload source checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "v${DECRAMP_VERSION}" \
+            "$DECRAMP_ARCHIVE" "$DECRAMP_CHECKSUM" "$DECRAMP_MANIFEST" \
+            --target "$GITHUB_SHA" --title "DecrampEQ ${DECRAMP_VERSION}" \
+            --notes-file "$DECRAMP_NOTES" --latest

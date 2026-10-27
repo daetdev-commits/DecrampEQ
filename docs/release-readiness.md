@@ -1,6 +1,6 @@
 # Initial publication readiness
 
-Version: **0.2.0**, initial public-release candidate.
+Version: **0.2.0**, initial public release.
 
 The cutoff for this development pass is a usable, inspectable initial OSS
 release: numerical behavior, realtime ownership, build integration, documentation,
@@ -29,16 +29,27 @@ the README and validation notes.
 The Clang toolchain's bundled runtime build can emit its own upstream warnings;
 the project's C++ sources compile with warnings treated as errors.
 
-## Remote checks prepared, not claimed as completed
+## Completed hosted checks
 
-The GitHub Actions workflow has Linux GCC, Linux Clang, macOS AppleClang,
-Windows MSVC, and Linux ASan+UBSan jobs. Its YAML is parsed locally, but hosted
-jobs cannot run before this folder is a GitHub repository. Run that workflow on
-the initial push and inspect all jobs before declaring those OS configurations
-validated. There is no green CI badge or claim of completed hosted CI here.
+All five jobs in the [initial hosted CI run](https://github.com/daetdev-commits/DecrampEQ/actions/runs/40466354568)
+passed on source commit `2693f7d0e7bae9c044770f9a67cdf5cbc6325f97`:
+Linux GCC, Linux Clang, macOS AppleClang, Windows MSVC, and Linux ASan+UBSan.
+The four compiler jobs include the examples and relocated package consumers;
+the sanitizer job includes the correctness and consumer checks.
 
-Publish the contents of the `DecrampEQ` folder as the repository root so its
-`.github/workflows` directory is in the correct location.
+The [public repository](https://github.com/daetdev-commits/DecrampEQ) contains
+the library folder as its root. Subsequent validation is recorded in its
+[CI runs](https://github.com/daetdev-commits/DecrampEQ/actions/workflows/ci.yml).
+
+## Publishing a version
+
+Release publication is opt-in. After updating the CMake version, changelog,
+and `docs/releases/<version>.md`, commit to main with the exact message
+`Release DecrampEQ <version>`. Only that main-branch push can run the release
+job, and it depends on all compiler and sanitizer jobs passing. Pull requests
+and ordinary pushes run checks without publishing a release. The job archives
+the tested commit and attaches its source ZIP, archive checksum, and per-file
+SHA-256 manifest to the versioned GitHub Release.
 
 ## Material limits carried into the release
 

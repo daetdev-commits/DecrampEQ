@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 (initial public-release candidate)
+## 0.2.0 (2026-10-27)
 
 - Add the MIT license to the project and the standalone header, with mathematical references and dependency attribution.
 - Record original archive hashes, maintainer-reported AI origins, source/dependency inventory, limited similarity searches, and the limits of the license review.
@@ -9,7 +9,8 @@
 - Add a complete producer retry/audio-consumer example and run both examples as tests.
 - Provide English and Japanese READMEs, public API/threading contracts, contribution guidance, and publication readiness notes.
 - Add a consistent C++ formatting configuration and reject a queue capacity that would overflow its sentinel slot.
-- Configure GCC/Clang/Linux, AppleClang/macOS, MSVC/Windows, and ASan+UBSan GitHub Actions jobs. Remote jobs run after publication; local MSVC, Clang, and MSVC ASan checks are recorded separately.
+- Pass hosted GCC/Clang/Linux, AppleClang/macOS, MSVC/Windows, and Linux ASan+UBSan GitHub Actions jobs; local MSVC, Clang, and MSVC ASan checks are recorded separately.
+- Publish versioned source archives and SHA-256 manifests only after all CI checks pass, on an explicit `Release DecrampEQ <version>` commit to main.
 
 ## 0.1.4
 

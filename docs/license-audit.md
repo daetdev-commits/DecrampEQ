@@ -1,6 +1,6 @@
 # License and provenance review
 
-Reviewed: **2026-10-27**, source candidate **0.2.0**.
+Reviewed: **2026-10-27**, source version **0.2.0**.
 
 **Result: no conflicting third-party license or identifiable imported C++
 implementation was found in the reviewed source distribution.** This is a

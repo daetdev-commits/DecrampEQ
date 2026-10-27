@@ -8,7 +8,10 @@ SPSC coefficient queue. Runtime dependency: the C++ standard library.
 [日本語](README.ja.md) · [API and threading](docs/api.md) ·
 [Validation](docs/validation.md) · [Changelog](CHANGELOG.md) · [MIT license](LICENSE)
 
-Version 0.2.0 is an initial public-release candidate. The API is pre-1.0.
+Version 0.2.0 is the initial public release. The API is pre-1.0.
+
+[Releases](https://github.com/daetdev-commits/DecrampEQ/releases) ·
+[CI results](https://github.com/daetdev-commits/DecrampEQ/actions/workflows/ci.yml)
 
 ## Features
 
@@ -129,7 +132,7 @@ fractional-order boundaries, malformed input, history/reset behavior, update
 ordering, SPSC transfer, C++ allocations, and installed/vendored consumers in
 multiple translation units. The CI workflow adds Linux GCC/Clang, macOS, Windows,
 and sanitizer configurations. The [release checklist](docs/release-readiness.md)
-distinguishes locally completed checks from CI that runs after publication.
+records locally completed checks and the initial hosted CI results.
 
 ## License and contributions
 
